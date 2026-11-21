@@ -72,8 +72,8 @@ jobs:
         env:
           BASTION_HOST: ${{ secrets.BASTION_HOST }}
           BASTION_USER: ${{ secrets.BASTION_USER }}
-          TARGET_HOST: ${{ secrets.TARGET_HOST }}
-          TARGET_USER: ${{ secrets.TARGET_USER }}
+          PA55WORD_HOST: ${{ secrets.PA55WORD_HOST }}
+          PA55WORD_USER: ${{ secrets.PA55WORD_USER }}
 
         run: |
           cat > ~/.ssh/config <<EOF
@@ -87,8 +87,8 @@ jobs:
             UserKnownHostsFile ~/.ssh/known_hosts
 
           Host target
-            HostName ${TARGET_HOST}
-            User ${TARGET_USER}
+            HostName ${PA55WORD_HOST}
+            User ${PA55WORD_USER}
             ProxyJump bastion
             IdentityFile ~/.ssh/target_key
             IdentitiesOnly yes
