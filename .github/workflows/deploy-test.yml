@@ -45,8 +45,8 @@ jobs:
         run: |
           mkdir -p ~/.ssh
       
-          printf '%s' "$BASTION_SSH_KEY" | tr -d '\r' > ~/.ssh/bastion_key
-          printf '%s' "$PA55WORD_SSH_KEY" | tr -d '\r' > ~/.ssh/PA55WORD_key
+          printf '%s\n' "$BASTION_SSH_KEY" | tr -d '\r' > ~/.ssh/bastion_key
+          printf '%s\n' "$PA55WORD_SSH_KEY" | tr -d '\r' > ~/.ssh/PA55WORD_key
       
           chmod 600 ~/.ssh/bastion_key
           chmod 600 ~/.ssh/PA55WORD_key
