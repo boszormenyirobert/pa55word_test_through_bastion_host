@@ -139,16 +139,35 @@ jobs:
           # Automatically collected host keys are not independently verified.
           ssh-keyscan -T 10 -t ed25519 -H -- "$BASTION_HOST" >> ~/.ssh/known_hosts
 
-          PA55WORD_HOST_KEYS="$(printf '%s\n' "$PA55WORD_HOST" |
-            ssh -o BatchMode=yes bastion \
-              'IFS= read -r host && ssh-keyscan -T 10 -t ed25519 -H -- "$host"')"
+          ssh -N -o BatchMode=yes -o ExitOnForwardFailure=yes \
+            -o ConnectTimeout=10 \
+            -L "127.0.0.1:22222:${PA55WORD_HOST}:22" bastion &
+          TUNNEL_PID=$!
+          trap 'if kill -0 "$TUNNEL_PID" 2>/dev/null; then kill "$TUNNEL_PID"; fi' EXIT
+
+          PA55WORD_HOST_KEYS=""
+          for attempt in 1 2 3 4 5; do
+            if ! kill -0 "$TUNNEL_PID" 2>/dev/null; then
+              echo "::error::Bastion SSH tunnel stopped before host key collection."
+              exit 1
+            fi
+            if PA55WORD_HOST_KEYS="$(ssh-keyscan -T 2 -t ed25519 -p 22222 127.0.0.1)"; then
+              if [ -n "$PA55WORD_HOST_KEYS" ]; then
+                break
+              fi
+            fi
+            echo "Host key collection attempt $attempt failed; retrying."
+            sleep 1
+          done
 
           if [ -z "$PA55WORD_HOST_KEYS" ]; then
-            echo "::error::Bastion returned no target host key. Check ForceCommand and command= restrictions on the Bastion account."
+            echo "::error::No target host key received through the Bastion tunnel. Check forwarding permissions and target port 22 connectivity."
             exit 1
           fi
 
-          printf '%s\n' "$PA55WORD_HOST_KEYS" >> ~/.ssh/known_hosts
+          printf '%s\n' "$PA55WORD_HOST_KEYS" |
+            awk '$2 == "ssh-ed25519" { $1 = ENVIRON["PA55WORD_HOST"]; print }' \
+            >> ~/.ssh/known_hosts
           if ! ssh-keygen -F "$PA55WORD_HOST" -f ~/.ssh/known_hosts > /dev/null; then
             echo "::error::Collected host keys do not contain PA55WORD_HOST."
             exit 1
