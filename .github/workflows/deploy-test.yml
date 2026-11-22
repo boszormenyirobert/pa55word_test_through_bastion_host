@@ -127,9 +127,23 @@ jobs:
           chmod 600 ~/.ssh/config
 
       - name: Setup SSH known_hosts
+        env:
+          BASTION_HOST: ${{ secrets.BASTION_HOST }}
+          PA55WORD_HOST: ${{ secrets.PA55WORD_HOST }}
         run: |
+          set -euo pipefail
+          : "${BASTION_HOST:?BASTION_HOST is required}"
+          : "${PA55WORD_HOST:?PA55WORD_HOST is required}"
+
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.BASTION_HOST }} >> ~/.ssh/known_hosts
+          # Automatically collected host keys are not independently verified.
+          ssh-keyscan -T 10 -t ed25519 -H -- "$BASTION_HOST" >> ~/.ssh/known_hosts
+
+          printf '%s\n' "$PA55WORD_HOST" |
+            ssh -o BatchMode=yes bastion \
+              'IFS= read -r host && ssh-keyscan -T 10 -t ed25519 -H -- "$host"' \
+              >> ~/.ssh/known_hosts
+
           chmod 600 ~/.ssh/known_hosts
       
       - name: Test Bastion connection
