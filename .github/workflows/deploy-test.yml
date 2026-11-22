@@ -41,12 +41,15 @@ jobs:
       - name: Install SSH keys
         env:
           BASTION_SSH_KEY: ${{ secrets.BASTION_PRIVATE_DEPLOY }}
+          PA55WORD_SSH_KEY: ${{ secrets.PA55WORD_PRIVATE_DEPLOY }}
         run: |
           mkdir -p ~/.ssh
       
           printf '%s' "$BASTION_SSH_KEY" | tr -d '\r' > ~/.ssh/bastion_key
+          printf '%s' "$PA55WORD_SSH_KEY" | tr -d '\r' > ~/.ssh/PA55WORD_key
       
           chmod 600 ~/.ssh/bastion_key
+          chmod 600 ~/.ssh/PA55WORD_key
       
           echo "Key size:"
           wc -c < ~/.ssh/bastion_key
@@ -59,6 +62,7 @@ jobs:
       
           echo "Testing key:"
           ssh-keygen -y -f ~/.ssh/bastion_key > /dev/null
+          ssh-keygen -y -f ~/.ssh/PA55WORD_key > /dev/null
       
           echo "KEY IS VALID"
 
@@ -192,4 +196,3 @@ jobs:
             echo "Production deployment verified successfully!"
 
           EOF
-
