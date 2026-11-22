@@ -40,7 +40,7 @@ jobs:
 
       - name: Install SSH keys
         env:
-          BASTION_SSH_KEY: ${{ secrets.BASTION_SSH_KEY }}
+          BASTION_SSH_KEY: ${{ secrets.BASTION_PRIVATE_DEPLOY }}
         run: |
           mkdir -p ~/.ssh
       
