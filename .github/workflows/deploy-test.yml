@@ -40,14 +40,14 @@ jobs:
       - name: Install SSH keys
         env:
           BASTION_SSH_KEY: ${{ secrets.BASTION_SSH_KEY }}
-          TARGET_SSH_KEY: ${{ secrets.TARGET_SSH_KEY }}
+          PA55WORD_SSH_KEY: ${{ secrets.PA55WORD_SSH_KEY }}
 
         run: |
           printf '%s\n' "$BASTION_SSH_KEY" > ~/.ssh/bastion_key
-          printf '%s\n' "$TARGET_SSH_KEY" > ~/.ssh/target_key
+          printf '%s\n' "$PA55WORD_SSH_KEY" > ~/.ssh/PA55WORD_key
 
           chmod 600 ~/.ssh/bastion_key
-          chmod 600 ~/.ssh/target_key
+          chmod 600 ~/.ssh/PA55WORD_key
 
 
       # ======================================
@@ -86,11 +86,11 @@ jobs:
             StrictHostKeyChecking yes
             UserKnownHostsFile ~/.ssh/known_hosts
 
-          Host target
+          Host PA55WORD
             HostName ${PA55WORD_HOST}
             User ${PA55WORD_USER}
             ProxyJump bastion
-            IdentityFile ~/.ssh/target_key
+            IdentityFile ~/.ssh/PA55WORD_key
             IdentitiesOnly yes
             StrictHostKeyChecking yes
             UserKnownHostsFile ~/.ssh/known_hosts
@@ -110,12 +110,12 @@ jobs:
 
 
       # ======================================
-      # STEP 6 - Test Target connection
+      # STEP 6 - Test PA55WORD connection
       # ======================================
 
-      - name: Test Target connection
+      - name: Test PA55WORD connection
         run: |
-          ssh target "echo 'Target connection successful'"
+          ssh PA55WORD "echo 'PA55WORD connection successful'"
 
 
       # ======================================
@@ -124,7 +124,7 @@ jobs:
 
       - name: Deploy application
         run: |
-          ssh target <<'EOF'
+          ssh PA55WORD <<'EOF'
 
             set -e
 
@@ -149,7 +149,7 @@ jobs:
 
       - name: Verify deployment
         run: |
-          ssh target <<'EOF'
+          ssh PA55WORD <<'EOF'
 
             set -e
 
