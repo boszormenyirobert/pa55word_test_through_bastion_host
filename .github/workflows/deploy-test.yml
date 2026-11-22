@@ -36,18 +36,22 @@ jobs:
       # ======================================
       # STEP 2 - Install SSH private keys
       # ======================================
-
+      
       - name: Install SSH keys
         env:
           BASTION_SSH_KEY: ${{ secrets.BASTION_SSH_KEY }}
           PA55WORD_SSH_KEY: ${{ secrets.PA55WORD_SSH_KEY }}
-
+      
         run: |
-          printf '%s\n' "$BASTION_SSH_KEY" > ~/.ssh/bastion_key
-          printf '%s\n' "$PA55WORD_SSH_KEY" > ~/.ssh/PA55WORD_key
-
+          mkdir -p ~/.ssh
+      
+          printf '%s\n' "$BASTION_SSH_KEY" | tr -d '\r' > ~/.ssh/bastion_key
+          printf '%s\n' "$PA55WORD_SSH_KEY" | tr -d '\r' > ~/.ssh/PA55WORD_key
+      
+          chmod 700 ~/.ssh
           chmod 600 ~/.ssh/bastion_key
           chmod 600 ~/.ssh/PA55WORD_key
+
 
 
       # ======================================
