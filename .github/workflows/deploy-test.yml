@@ -52,7 +52,15 @@ jobs:
           chmod 600 ~/.ssh/bastion_key
           chmod 600 ~/.ssh/PA55WORD_key
 
-
+      - name: Validate SSH keys
+        run: |
+          echo "Checking Bastion key..."
+          ssh-keygen -y -f ~/.ssh/bastion_key > /dev/null
+      
+          echo "Checking PA55WORD key..."
+          ssh-keygen -y -f ~/.ssh/PA55WORD_key > /dev/null
+      
+          echo "Both SSH keys are valid!"
 
       # ======================================
       # STEP 3 - Configure SSH known hosts
