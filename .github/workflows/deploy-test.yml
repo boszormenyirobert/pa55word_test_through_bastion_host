@@ -99,7 +99,16 @@ jobs:
 
           chmod 600 ~/.ssh/config
 
-
+      - name: Setup SSH known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.BASTION_HOST }} >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      
+      - name: Test Bastion connection
+        run: |
+          ssh bastion "echo 'Bastion connection successful'"
+          
       # ======================================
       # STEP 5 - Test Bastion connection
       # ======================================
